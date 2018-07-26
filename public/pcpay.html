@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>
+		盈乐圈网银支付
+	</title>
+	<style>
+		html,body{
+			min-width: 750px;
+			font-size: 16px;
+			color: #333;
+		}
+		a{
+			color: #4577dc;
+		}
+		html,body,div,ul,ol,li,p,input{
+			margin: 0;
+			padding: 0;
+		}
+		ul,ol,li{list-style: none;}
+		.wrapper{padding: 30px;}
+		.wrapper header{line-height: 50px;margin-bottom: 50px;}
+		.wrapper header h2{font-size: 36px;}
+		.wrapper header p{font-size: 20px; margin-bottom: 0px;}
+		.wrapper .container{}
+		.wrapper .container ul{}
+		.wrapper .container ul .form-item{}
+		.wrapper .container ul .form-item:after{content:"";clear: both;display: block;}
+		.wrapper .container ul .form-item>div {float: left;line-height: 50px;margin-top: 20px;}
+		.wrapper .container ul .form-item .item-label {font-size: 20px;}
+		.wrapper .container ul .form-item .item-cont {line-height: 50px;}
+		.wrapper .container ul .form-item .item-cont .price-btn-box button{display: inline-block;width: 80px;height:40px;font-size: 18px; border-radius:5px;margin: 5px 0 0 0;background: #eee;border:1px solid #ccc;line-height: 40px;}
+		.wrapper .container ul .form-item .item-cont .price-btn-box .on{background: #4577dc;color:#fff;}
+		.wrapper .container ul .form-item .item-cont .price-btn-box button:active{background: #4577dc;color:#fff;}
+		.wrapper .container ul .form-item .item-cont .price-btn-box button:focus{outline:none;}
+		.wrapper .container ul .form-item .item-cont .price-input input{width: 400px;height:40px;padding:0 20px;font-size: 18px;border-radius:5px;border: 1px solid #ccc;}
+		.wrapper .container ul .form-item .item-cont .price-input input::-webkit-outer-spin-button,
+		.wrapper .container ul .form-item .item-cont .price-input input::-webkit-inner-spin-button {
+								-webkit-appearance: none;
+				}
+		.wrapper .container ul .form-item .item-cont .price-input input[type="number"]{
+								-moz-appearance: textfield;
+				}
+		.wrapper .container ul .form-item .item-cont .price-input input:focus{outline:none;box-shadow:0 0 3px 0 #4577dc inset; border-color:#4577dc;}
+		.wrapper .container ul .form-item .item-cont .price-show-text{color:#4577dc; font-size: 24px; line-height: 50px;}
+		.wrapper .container ul .form-item .item-cont .price-show-text b{font-size: 30px;}
+		.wrapper .container ul .form-item .item-cont .rechange-msg{ display: inline;font-size: 18px;}
+		.wrapper .container ul .form-item .item-cont > span{ color:#e4393c;}
+		.wrapper .container ul .form-item>button{display: block;width: 400px;height: 40px;margin:30px 0 20px 14%;border: 1px solid #ccc; border-radius: 5px; font-size: 18px;line-height: 40px;}
+		.wrapper .container ul .form-item>button:focus{outline:none; }
+		.wrapper .container ul .form-item>button:active{background: #4577dc;color:#fff;}
+		.wrapper .container ul .form-item>p{text-align: center;}
+		.wrapper .container ul .form-item>p span{color:#4577dc;}
+		#postPayForm{
+			textarea{
+				display: block;
+				width: 100%;
+				height: 500px;
+			}
+		}
+		/* 操作中遮罩 */
+		.loage-shadow{position: fixed;top: 0;left: 0;width: 100%;height:100%;background: rgba(0,0,0,.4);transition:.5s;}
+		.loage-shadow>div{position: absolute;top:0;left: 0;right: 0;bottom:0;width: 200px;height:150px;margin:auto;background: #f5f5f5;text-align: center;border-radius: 10px;}
+		.loage-shadow div b{display: block; width: 50px;height:50px;border-radius:50%;border: 5px solid #4577dc;border-bottom-color:transparent;margin:20px auto;animation:outside 1.3s linear infinite;}
+		.loage-shadow div b i{display: block; width: 30px;height:30px; margin: 5px;border-radius:50%;border: 5px solid #4577dc;border-top-color:transparent;animation:inside 1.5s linear infinite;}
+		.loage-shadow p{
+			font-size: 20px;
+		}
+		@keyframes outside{
+			from{transform: rotate(0);}
+			to{transform: rotate(360deg);}
+		}
+		@keyframes inside{
+			from{transform: rotate(0);}
+			to{transform: rotate(-720deg);}
+		}
+	</style>
+</head>
+<body>
+<div class="wrapper">
+	<header>
+		<h2>账户充值</h2>
+		<p>充值用户：<span class="user-name"></span></p>
+		<p>账户余额：<span class="user-balance"></span></p>
+	</header>
+	<div class="container">
+		<ul>
+			<li class="form-item">
+				<div class="item-label">
+					充值金额：
+				</div>
+				<div class="item-cont">
+					<div class="price-btn-box">
+						<button class="on" value="100">100</button>
+						<button class="" value="200">200</button>
+						<button class="" value="400">400</button>
+						<button class="" value="800">800</button>
+						<button class="" value="1000">1000</button>
+						<button class="" value="num">自定义</button>
+					</div>
+					<div class="price-input" style="display:none;">
+						<input type="number" value="0" praceholder='请输入充值金额'>
+					</div>
+				</div>
+			</li>
+			<li class="form-item">
+				<div class="item-label">
+					需要支付：
+				</div>
+				<div class="item-cont">
+					<p class="price-show-text"><b>¥</b><span class="price-show-num">100</span></p>
+				</div>
+			</li>
+			<li class="form-item">
+				<div class="item-label">
+					充值说明：
+				</div>
+				<div class="item-cont">
+					单笔充值金额超过5000请在随后的页面中选择<span>其他支付方式</span>进行网银支付！
+				</div>
+			</li>
+			<li class="form-item">
+				<button class="submit-btn">立即充值</button>
+				<!-- <p class="submit-msg">开通及同意<span>《用户使用和隐私协议》</span></p> -->
+			</li>
+		</ul>
+		<div>
+			<form id='postPayForm'  ref="formMain" action="https://ai.aaronbuct.com/psfp-entry/gateway/payment.do" accept-charset="utf-8" method="post">
+				<textarea name="pGateWayReq" type="type" ></textarea>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="loage-shadow" style="display:none;">
+	<div><b><i></i></b><p>操作中...</p></div>
+</div>
+<script>
+	function $(ele){return document.querySelector(ele)}
+	function $$(ele){return document.querySelectorAll(ele)}
+	var urlString=window.location.href
+	var userName=$('.user-name')//充值用户
+	var userBalance=$('.user-balance')//账户余额
+	var showPrice=$('.price-show-num')//需要支付金额
+	var priceBtns=$('.price-btn-box')//充值金额按钮容器
+	var priceBtnAll=$$('.price-btn-box>button')//充值金额按钮组
+	var priceIptBox=$('.price-input')//自定义金额输入框容器
+	var priceIpt=$('.price-input input')//金额输入框
+	var payForm=$('#postPayForm')//form
+	var payFormText=$('#postPayForm textarea')//form支付报文
+	var submitBtn=$('.submit-btn')//立即充值按钮
+
+	var loadingStatus=true;//加载中状态开关,用于限制操作
+
+
+	var formData={
+			PostUrl:'https://newpay.ips.com.cn/psfp-entry/gateway/payment.do',//表单提交地址(web)
+		//请求头head参数
+			Version:'',//版本号(可选)
+			MerCode:'207501',//商户号(必填)-----!!!
+			MerName:'',//商户名称(可选)
+			Account:'2075010013',//交易账户号(必填)-----!!!
+			MerCert:'kT0Jet7jqlqH1FaEKGo3e0Gt3rmX3m7gEDRLxTKaMjUSsnccQ3zkxe4QhlOeN6c7HBXxolnYAzTwlsldZp99jbJtENq0Z4z1QuhwQE9Cpz9EQf2tW1bLTxk05OYSvj5J',//商户证书(必填)-----!!!
+			MsgId :'',//消息编号(交易必输,查询可选)
+			ReqDate:'',//请求时间yyyyMMddHHmmss (必填)-----!!!
+			Signature :'',//数字签名//Signature = MD5(<body>…</body>+商户号 +MD5证书)(必填)-----!!!
+		//请求主体body参数
+			MerBillNo:'',//商户订单号(必填)-----!!!
+			GatewayType:'01',//支付方式 01#借记卡 02#信用卡 03#IPS账户支付(必填)-----!!!
+			Date :'',//订单日期yyyyMMdd (必填)-----!!!
+			Amount:'',//订单金额-保留2位小数 (必填)-----!!!
+			CurrencyType:'156',//币种(人民币)(必填)-----!!!
+			Lang:'GB',//语言-中文(可选)
+			Merchanturl:'http://ylq.aaronbuct.com/paystatussucc?str=success',//支付成功回调URL(必填)-----!!!
+			FailUrl:'http://ylq.aaronbuct.com/paystatussucc?str=error',//支付失败回调URL(可选)
+			Attach:'',//商户数据包(会原封不动的返回给商户)(可选)
+			RetType:'1',//服务器返回方式(1==S2S==开启异步回调)(必填)-----!!!
+			ServerUrl:'http://ylq.aaronbuct.com/paystatussucc',//异步回调(上面的RetType为1才会生效)(必填)-----!!!
+			OrderEncodeType:'5',//加密方式(5==md5)(必填)-----!!!
+			RetEncodeType:'17',//交易返回接口加密方式(必填)-----!!!
+			//16# 交 易 返 回 采 用 Md5WithRsa的签名认证方式  17#交易返回采用Md5的摘要 认证方式
+			BillEXP:'',//订单有效日期(以小时为单位,必须是整数)(可选)
+			GoodsName:'',//商品名称(必填)-----!!!
+			BankCode:'',//银行号码(直连必填，银行编号见 附录银行列表)
+			ProductType:'',//产品类型,1=个人网银  2=企业网银 (直连必填)
+			IsCredit:'',//直连选项(1==启用直联,空为不启用)
+	}
+
+	// console.log(urlStrtoJSON(urlString))
+	//选择按钮
+	priceBtns.onclick=function(e){
+		var ev=e||window.event
+		var tag=ev.srcElement||ev.target
+		if(tag.nodeName=='BUTTON'){
+			if(tag.value=='num'){
+				priceIptBox.style.display='block'
+				tabPrice(tag)
+			}else{
+				priceIptBox.style.display='none'
+			}
+			switch(tag.value){
+				case '100':
+					console.log('充值100')
+					tabPrice(tag)
+				break;
+				case '200':
+					console.log('充值200')
+					tabPrice(tag)
+				break;
+				case '400':
+					console.log('充值400')
+					tabPrice(tag)
+				break;
+				case '800':
+					console.log('充值800')
+					tabPrice(tag)
+				break;
+				case '1000':
+					console.log('充值1000')
+					tabPrice(tag)
+				break;
+			}
+		}
+		// console.log(tag.value)
+	}
+	//切换价格
+	function tabPrice(tag){
+		if(tag.value!='num'){
+			showPrice.innerHTML=tag.value
+		}else{
+			showPrice.innerHTML=0
+		}
+		for(var i=0;i<priceBtnAll.length;i++){
+			priceBtnAll[i].className=""
+		}
+		console.log(tag)
+		tag.className="on"
+	}
+	//表单监听
+	priceIpt.oninput=function(){
+		let num=priceIpt.value
+		showPrice.innerHTML=num
+		console.log(num)
+	}
+	//格式化url参数返回JSON
+	function urlStrtoJSON(str){
+		var obj={}
+		if(str){
+			var itemString=str.split('?')[1];
+			var items=itemString&&itemString.split('&');
+			if(items){
+				for(var i=0; i<items.length; i++){
+					var attr=items[i].split('=')[0];
+					var val=items[i].split('=')[1];
+					obj[attr]=val
+				}
+			}
+		}
+		return obj;
+	}
+	//AJAX
+	function ajax(obj){
+		if("XMLHttpRequest" in window){
+			var xhr=new XMLHttpRequest();
+		}else{
+			var xhr=new ActiveXObject("Microsoft.XMLHTTP")
+		}
+		if(!obj.type||obj.type.toUpperCase()=="GET"){
+			xhr.open("get",obj.url+"?"+jsonData(),true)
+			xhr.send()
+		}else if(obj.type.toUpperCase()=="POST"){
+			xhr.open("post",obj.url,true)
+			var hType=obj.headType?obj.headType:"application/x-www-form-urlencoded"
+			xhr.setRequestHeader("Content-type",hType);
+			xhr.send(jsonData())
+		}
+		xhr.onreadystatechange=function(){
+			obj.reState&&obj.reState(xhr.readyState);
+			if(xhr.readyState=="4"){
+				if(xhr.status>=200&&xhr.status<300||xhr.status==304){
+					obj.success&&obj.success(xhr.responseText)
+				}else{
+					obj.error&&obj.error(xhr.status);
+				}
+			}
+		}
+		function jsonData(){
+			if(obj.data){
+			var arr=[]
+			for(i in obj.data){
+				arr.push(i+"="+obj.data[i])
+			}
+			return arr.join("&");
+		}else{return "";}
+		}
+	}
+	//点击立即充值
+	submitBtn.onclick=function(){
+		loadingOff(true)
+	}
+	//遮罩操作中开关
+	function loadingOff(boo){
+		var ele=$('.loage-shadow')
+		if(boo){
+			ele.style.display="block"
+			loadingStatus=false
+		}else{
+			ele.style.display="none"
+			loadingStatus=true
+		}
+	}
+	//提交支付请求
+	function mainSubMit(){
+		payFormText.value=createXmlStr()
+		console.log(createXmlStr())
+	}
+
+	//支付请求报文
+	//拼接头部与主体xml字符串
+	function createXmlStr(para_temp) {
+		var str="<Ips>"+
+		"<GateWayReq>"+
+		buildHead(para_temp)+
+		buildBody(para_temp)+
+		"</GateWayReq>"+
+		"</Ips>"
+		return str;
+	}
+	//拼接请求头部xml数据
+	function buildHead(para_temp){
+		var str="<head>"+
+		"<Version>"+para_temp.Version?para_temp.Version:''+"</Version>"+
+		"<MerCode>"+para_temp.MerCode?para_temp.MerCode:''+"</MerCode>"+
+		"<MerName>"+para_temp.MerName?para_temp.MerName:''+"</MerName>"+
+		"<Account>"+para_temp.Account?para_temp.Account:''+"</Account>"+
+		"<MsgId>"+para_temp.MsgId?para_temp.MsgId:''+"</MsgId>"+
+		"<ReqDate>"+para_temp.ReqDate?para_temp.ReqDate:''+"</ReqDate>"+
+		"<Signature>"+md5(buildBody(para_temp)+para_temp.MerCode+para_temp.MerCert)+"</Signature>"+
+		"</head>"
+			return str;
+	}
+	//拼接请求主体xml数据
+	function buildBody(para_temp){
+		var str="<body>"+
+		"<MerBillNo>"+para_temp.MerBillNo?para_temp.MerBillNo:''+"</MerBillNo>"+
+		"<GatewayType>"+para_temp.GatewayType?para_temp.GatewayType:''+"</GatewayType>"+
+		"<Date>"+para_temp.Date?para_temp.Date:''+"</Date>"+
+		"<CurrencyType>"+para_temp.CurrencyType?para_temp.CurrencyType:''+"</CurrencyType>"+
+		"<Amount>"+para_temp.Amount?para_temp.Amount:''+"</Amount>"+
+		"<Lang>"+para_temp.Lang?para_temp.Lang:''+"</Lang>"+
+		"<Merchanturl><![CDATA["+para_temp.Merchanturl?para_temp.Merchanturl:''+"]]></Merchanturl>"+
+		"<FailUrl><![CDATA["+para_temp.FailUrl?para_temp.FailUrl:''+"]]></FailUrl>"+
+		"<Attach><![CDATA["+para_temp.Attach?para_temp.Attach:''+"]]></Attach>"+
+		"<OrderEncodeType>"+para_temp.OrderEncodeType?para_temp.OrderEncodeType:''+"</OrderEncodeType>"+
+		"<RetEncodeType>"+para_temp.RetEncodeType?para_temp.RetEncodeType:''+"</RetEncodeType>"+
+		"<RetType>"+para_temp.RetType?para_temp.RetType:''+"</RetType>"+
+		"<ServerUrl><![CDATA["+para_temp.ServerUrl?para_temp.ServerUrl:''+"]]></ServerUrl>"+
+		"<BillEXP>"+para_temp.BillEXP?para_temp.BillEXP:''+"</BillEXP>"+
+		"<GoodsName>"+para_temp.GoodsName?para_temp.GoodsName:''+"</GoodsName>"+
+		"<IsCredit>"+para_temp.IsCredit?para_temp.IsCredit:''+"</IsCredit>"+
+		"<BankCode>"+para_temp.BankCode?para_temp.BankCode:''+"</BankCode>"+
+		"<ProductType>"+para_temp.ProductType?para_temp.ProductType:''+"</ProductType>"+
+		"</body>"
+		return str;
+	}
+</script>
+</body>
+</html>
